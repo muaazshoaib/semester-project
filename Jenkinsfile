@@ -1,37 +1,33 @@
 pipeline {
     agent any
     stages {
-        stage('Deploy') {
+        stage('Build') {
             steps {
-                script {
-                    def remoteDirectory = ""
-                    if (env.BRANCH_NAME == 'main') {
-                        remoteDirectory = '/var/www/html'
-                    } else if (env.BRANCH_NAME == 'feature_1') {
-                        remoteDirectory = '/var/www/html/feature_1'
-                    } else if (env.BRANCH_NAME == 'feature_2') {
-                        remoteDirectory = '/var/www/html/feature_2'
-                    }
-                    
-                    sshPublisher(
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'ApacheServer',
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: '**/*.html',
-                                        remoteDirectory: remoteDirectory,
-                                        removePrefix: '',
-                                        execCommand: ''
-                                    )
-                                ],
-                                usePromotionTimestamp: false,
-                                useWorkspaceInPromotion: false,
-                                verbose: true
-                            )
-                        ]
-                    )
-                }
+                echo 'Application build stage...'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Print the current working directory
+                sh 'pwd'
+                
+                // List the contents of the Jenkins workspace
+                sh 'ls -la ${WORKSPACE}'
+
+                // Remove existing files on the remote server first
+                sh '''
+                    gcloud compute ssh root@apache-server --zone=us-central1-a -- "rm -rf /var/www/html/*"
+                '''
+
+                // Then copy new files from Jenkins workspace to the remote server
+                sh '''
+                    gcloud compute scp --recurse ${WORKSPACE}/* root@apache-server:/var/www/html --zone=us-central1-a
+                '''
+            }
+        }
+        stage('Run') {
+            steps {
+                echo 'Application run stage'
             }
         }
     }
