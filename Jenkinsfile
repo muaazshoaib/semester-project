@@ -16,12 +16,12 @@ pipeline {
 
                 // Remove existing files on the remote server first
                 sh '''
-                    gcloud compute ssh root@ahmed-apache --zone=us-central1-a -- "rm -rf /var/www/html/*"
+                    gcloud compute ssh root@muaaz-apache-server --zone=us-central1-a -- "rm -rf /var/www/html/*"
                 '''
 
                 // Then copy new files from Jenkins workspace to the remote server
                 sh '''
-                    gcloud compute scp --recurse ${WORKSPACE}/* root@ahmed-apache:/var/www/html --zone=us-central1-a
+                    gcloud compute scp --recurse ${WORKSPACE}/* root@muaaz-apache-server:/var/www/html --zone=us-central1-a
                 '''
             }
         }
