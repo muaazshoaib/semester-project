@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Run') {
             steps {
-                echo 'Application run stage'
+                echo 'Application run stage Muaaz'
             }
         }
     }
